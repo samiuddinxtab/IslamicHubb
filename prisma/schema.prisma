@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ExportStatus {
+  pending
+  completed
+  failed
+}
+
+model Export {
+  id                String       @id @default(uuid())
+  institutionId     String
+  requestedByUserId String
+  entityType        String
+  filters           Json?
+  status            ExportStatus @default(pending)
+  fileKey           String?
+  fileUrl           String?
+  fileUrlExpiresAt  DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([institutionId, createdAt])
+  @@map("exports")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  institutionId String
+  userId        String
+  action        String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([institutionId, createdAt])
+  @@map("audit_logs")
+}
